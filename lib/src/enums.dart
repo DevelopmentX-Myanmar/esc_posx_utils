@@ -42,6 +42,13 @@ class PaperSize {
           : value == PaperSize.mm80.value
               ? 558
               : 725;
+  int get mm => value == PaperSize.mm58.value
+      ? 58
+      : value == PaperSize.mm72.value
+          ? 72
+          : value == PaperSize.mm80.value
+              ? 80
+              : 104;
 }
 
 class PosBeepDuration {
