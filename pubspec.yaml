@@ -1,6 +1,6 @@
 name: esc_posx_utils
 description: Basic Flutter/Dart classes for ESC/POS printing.
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/DevelopmentX-Myanmar/esc_posx_utils
 
 environment:
