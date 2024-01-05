@@ -1,6 +1,6 @@
 name: esc_posx_utils
 description: Basic Flutter/Dart classes for ESC/POS printing.
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/DevelopmentX-Myanmar/esc_posx_utils
 
 environment:
@@ -26,7 +26,7 @@ dev_dependencies:
 flutter:
   # To add assets to your package, add an assets section, like this:
   assets:
-    - lib/resources/capabilities.json
+    - packages/esc_posx_utils/resources/capabilities.json
   #   - images/a_dot_ham.jpeg
   #
   # For details regarding assets in packages, see
