@@ -1,4 +1,4 @@
-library esc_pos_utilsx;
+library esc_posx_utils;
 
 export './src/barcode.dart';
 export './src/capability_profile.dart';

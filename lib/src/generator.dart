@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:hex/hex.dart';
 import 'package:image/image.dart';
 import 'package:gbk_codec/gbk_codec.dart';
-import '../esc_pos_utilsx.dart';
+import '../esc_posx_utils.dart';
 import 'commands.dart';
 
 class Generator {
