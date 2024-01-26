@@ -578,36 +578,29 @@ class Generator {
 
   /// Print an image using (ESC *) command
   ///
-  /// [image] is an instance of class from [Image library](https://pub.dev/packages/image)
-  List<int> image(Image imgSrc,
-      {PosAlign align = PosAlign.center, bool isDoubleDensity = true}) {
+  /// [image] is an instanse of class from [Image library](https://pub.dev/packages/image)
+  List<int> image(
+    Image imgSrc, {
+    PosAlign align = PosAlign.center,
+    bool highDensityHorizontal = true,
+    bool highDensityVertical = true,
+  }) {
     List<int> bytes = [];
     // Image alignment
     bytes += setStyles(const PosStyles().copyWith(align: align));
 
-    Image image;
-    if (!isDoubleDensity) {
-      int size = 558 ~/ 2;
-      if (_paperSize == PaperSize.mm58) {
-        size = 375 ~/ 2;
-      } else if (_paperSize == PaperSize.mm72) {
-        size = 503 ~/ 2;
-      }
-
-      image =
-          copyResize(imgSrc, width: size, interpolation: Interpolation.linear);
-    } else {
-      image = Image.from(imgSrc); // make a copy
-    }
-
-    bool highDensityHorizontal = isDoubleDensity;
-    bool highDensityVertical = isDoubleDensity;
+    final Image image = Image.from(imgSrc); // make a copy
 
     invert(image);
-    flipHorizontal(image);
-    final Image imageRotated = copyRotate(image, angle: 270);
+    // flip(image, Flip.horizontal);
+    flip(image, direction: FlipDirection.horizontal);
+    // final Image imageRotated = copyRotate(image, 270);
+    final Image imageRotated =
+        copyRotate(image, angle: 270, interpolation: Interpolation.nearest);
 
-    int lineHeight = highDensityVertical ? 3 : 1;
+    final int lineHeight = highDensityVertical ? 3 : 1;
+
+    /// const int lineHeight = 3;
     final List<List<int>> blobs = _toColumnFormat(imageRotated, lineHeight * 8);
 
     // Compress according to line density
@@ -619,15 +612,20 @@ class Generator {
     }
 
     final int heightPx = imageRotated.height;
-    int densityByte =
+    final int densityByte =
         (highDensityHorizontal ? 1 : 0) + (highDensityVertical ? 32 : 0);
 
     final List<int> header = List.from(cBitImg.codeUnits);
     header.add(densityByte);
     header.addAll(_intLowHigh(heightPx, 2));
 
+    // Image alignment
+    bytes += latin1.encode(align == PosAlign.left
+        ? cAlignLeft
+        : (align == PosAlign.center ? cAlignCenter : cAlignRight));
+
     // Adjust line spacing (for 16-unit line feeds): ESC 3 0x10 (HEX: 0x1b 0x33 0x10)
-    bytes += [27, 51, 0];
+    bytes += [27, 51, 16];
     for (int i = 0; i < blobs.length; ++i) {
       bytes += List.from(header)
         ..addAll(blobs[i])
@@ -655,7 +653,7 @@ class Generator {
     final int widthPx = image.width;
     final int heightPx = image.height;
     final int widthBytes = (widthPx + 7) ~/ 8;
-    final List<int> rasterizedData = _toRasterFormat(image);
+    final List<int> resterizedData = _toRasterFormat(image);
 
     if (imageFn == PosImageFn.bitImageRaster) {
       // GS v 0
@@ -666,7 +664,7 @@ class Generator {
       header.add(densityByte); // m
       header.addAll(_intLowHigh(widthBytes, 2)); // xL xH
       header.addAll(_intLowHigh(heightPx, 2)); // yL yH
-      bytes += List.from(header)..addAll(rasterizedData);
+      bytes += List.from(header)..addAll(resterizedData);
     } else if (imageFn == PosImageFn.graphics) {
       // 'GS ( L' - FN_112 (Image data)
       final List<int> header1 = List.from(cRasterImg.codeUnits);
@@ -676,7 +674,7 @@ class Generator {
       header1.addAll([49]); // c=49
       header1.addAll(_intLowHigh(widthBytes, 2)); // xL xH
       header1.addAll(_intLowHigh(heightPx, 2)); // yL yH
-      bytes += List.from(header1)..addAll(rasterizedData);
+      bytes += List.from(header1)..addAll(resterizedData);
 
       // 'GS ( L' - FN_50 (Run print)
       final List<int> header2 = List.from(cRasterImg.codeUnits);
